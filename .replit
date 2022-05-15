@@ -1,0 +1,6 @@
+# The command that runs the program.
+run = "python bot.py"
+# The primary language of the repl. There can be others, though!
+language = "python3"
+# The main file, which will be shown by default in the editor.
+entrypoint = "bot.py"
