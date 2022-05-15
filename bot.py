@@ -1,14 +1,18 @@
 from discord.ext import commands
-import discord
+from discord import Intents
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
+intents = Intents.default()
+intents.message_content = True
+
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        super().__init__(command_prefix=commands.when_mentioned_or('?lorb'), **kwargs)
+        super().__init__(command_prefix=commands.when_mentioned_or(
+            '?lorb'), intents=intents, case_insensitive=True, **kwargs)
 
     async def setup_hook(self):
         for i in next(os.walk(os.getcwd() + "/cogs"), (None, None, []))[2][::-1]:
@@ -24,6 +28,9 @@ class Bot(commands.Bot):
 
 bot = Bot()
 
-# write general commands here
+
+@bot.command(name="hello")
+async def hello(ctx: commands.Context):
+    await ctx.reply(f"Hello {ctx.author.mention}")
 
 bot.run(os.getenv("BOT_TOKEN"))
