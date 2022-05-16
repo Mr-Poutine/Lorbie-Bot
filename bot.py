@@ -34,8 +34,8 @@ class Bot(commands.Bot):
         # print(
         #     f"message: {message.content}, author: {message.author}, interaction: {message.interaction}")
 
-        if(message.interaction):
-            await message.channel.send(f"The above was an interaction, answered by {message.author.mention} and called by {message.interaction.user.mention}, interaction: {message.interaction}")
+        # if(message.interaction):
+        #     await message.channel.send(f"The above was an interaction, answered by {message.author.mention} and called by {message.interaction.user.mention}, interaction: {message.interaction}")
 
         await self.process_commands(message)
 
