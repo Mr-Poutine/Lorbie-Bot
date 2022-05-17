@@ -9,8 +9,7 @@ from constants import OwOID
 
 class ReminderType(Enum):
 
-    owoHunt = 1
-    owoBattle = 2
+    owoHuntBattle = 1
 
 
 class Reminder:
@@ -22,11 +21,8 @@ class Reminder:
 
     def getReminder(self):
 
-        if(self.reminderType == ReminderType.owoHunt):
-            return f"{self.user.mention}, its time to OwO Hunt"
-
-        elif(self.reminderType == ReminderType.owoBattle):
-            return f"{self.user.mention}, its time to OwO Battle"
+        if(self.reminderType == ReminderType.owoHuntBattle):
+            return f"{self.user.mention}, its time to OwO Hunt / Battle"
 
 
 class Timers(commands.Cog):
@@ -36,9 +32,18 @@ class Timers(commands.Cog):
         self.bot = bot
         self.timers: dict = {}
 
+        # Special case for hunt battle pair
+        self.owoHuntBattleUsers = set({})
+
         self.checkReminders.start()
 
     def addReminder(self, duration: int, reminder: Reminder):
+
+        if reminder.reminderType == ReminderType.owoHuntBattle:
+            if reminder.user.id in self.owoHuntBattleUsers:
+                return
+
+            self.owoHuntBattleUsers.add(reminder.user.id)
 
         reminderTime = int(time.time()) + duration
 
@@ -49,12 +54,12 @@ class Timers(commands.Cog):
 
     def checkOwOTimer(self, interaction: discord.MessageInteraction, channel: discord.TextChannel):
         if interaction.name == "hunt":
-            self.addReminder(15, Reminder(
-                ReminderType.owoHunt, interaction.user, channel))
+            self.addReminder(16, Reminder(
+                ReminderType.owoHuntBattle, interaction.user, channel))
 
         elif interaction.name == "battle":
-            self.addReminder(15, Reminder(
-                ReminderType.owoBattle, interaction.user, channel))
+            self.addReminder(16, Reminder(
+                ReminderType.owoHuntBattle, interaction.user, channel))
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -73,6 +78,10 @@ class Timers(commands.Cog):
                 keysToRemove.append(key)
                 for reminder in self.timers[key]:
                     reminder: Reminder = reminder
+
+                    if reminder.reminderType == ReminderType.owoHuntBattle:
+                        self.owoHuntBattleUsers.remove(reminder.user.id)
+
                     await reminder.channel.send(reminder.getReminder())
 
         for key in keysToRemove:
